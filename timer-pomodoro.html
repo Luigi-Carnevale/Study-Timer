@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pomodoro Timer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    #totalStudyTime {
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    #status {
+      font-size: 16px;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    #timer {
+      font-size: 56px;
+      font-weight: bold;
+      margin: 15px 0;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .controls button {
+      flex: 1 1 100px;
+      background: white;
+      border: none;
+      color: #764ba2;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 12px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .controls button:hover {
+      background: #f1f1f1;
+    }
+
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 18px;
+      }
+      #timer {
+        font-size: 48px;
+      }
+      .controls button {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 id="userTitle">Timer di ...</h1>
+    <div id="totalStudyTime">Tempo di studio totale: 0h 0m</div>
+    <div id="status">Premi Avvia per iniziare</div>
+    <div id="timer">25:00</div>
+    <div class="controls">
+      <button onclick="startTimer()">Avvia</button>
+      <button onclick="togglePause()">Pausa/Riprendi</button>
+      <button onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    let studyTime = 25 * 60;
+    let shortBreak = 5 * 60;
+    let longBreak = 15 * 60;
+    let cycleCount = 0;
+    let timeLeft = studyTime;
+    let isStudy = true;
+    let isRunning = false;
+    let isPaused = false;
+    let timer;
+    let studyMinutesTotal = 0;
+    let username = "";
+
+    const titleDisplay = document.getElementById("userTitle");
+    const totalTimeDisplay = document.getElementById("totalStudyTime");
+    const statusDisplay = document.getElementById("status");
+    const timerDisplay = document.getElementById("timer");
+
+    function askUsername() {
+      while (!username) {
+        username = prompt("Inserisci il tuo nome:");
+      }
+      titleDisplay.textContent = `Timer di ${username}`;
+    }
+
+    askUsername();
+
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    function notify(titolo, corpo) {
+      if (Notification.permission === "granted") {
+        new Notification(titolo, { body: corpo });
+      }
+    }
+
+    function updateDisplay() {
+      let minutes = Math.floor(timeLeft / 60);
+      let seconds = timeLeft % 60;
+      timerDisplay.textContent = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      let h = Math.floor(studyMinutesTotal / 60);
+      let m = studyMinutesTotal % 60;
+      totalTimeDisplay.textContent = `Tempo di studio totale: ${h}h ${m}m`;
+    }
+
+    function runTimer() {
+      timer = setInterval(() => {
+        if (!isPaused) {
+          timeLeft--;
+          updateDisplay();
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            isRunning = false;
+
+            if (isStudy) {
+              studyMinutesTotal += 25;
+              cycleCount++;
+              isStudy = false;
+              timeLeft = (cycleCount % 4 === 0) ? longBreak : shortBreak;
+
+              notify(
+                (cycleCount % 4 === 0) ? "🎉 4 Pomodori completati!" : "Pausa iniziata",
+                (cycleCount % 4 === 0) ? "Ottimo lavoro! Pausa lunga di 15 minuti." : "Pausa breve di 5 minuti."
+              );
+            } else {
+              isStudy = true;
+              timeLeft = studyTime;
+              notify("Torna allo studio", "Prossima sessione Pomodoro di 25 minuti!");
+            }
+
+            updateDisplay();
+            setTimeout(startTimer, 2000);
+          }
+        }
+      }, 1000);
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      isPaused = false;
+      statusDisplay.textContent = isStudy ? "🧠 Sessione di studio..." : (cycleCount % 4 === 0 ? "🛌 Pausa lunga..." : "☕ Pausa breve...");
+      runTimer();
+    }
+
+    function togglePause() {
+      if (!isRunning) return;
+      isPaused = !isPaused;
+      statusDisplay.textContent = isPaused ? "⏸ Timer in pausa" : (isStudy ? "🧠 Studio in corso..." : "☕ Pausa in corso...");
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      isRunning = false;
+      isPaused = false;
+      isStudy = true;
+      cycleCount = 0;
+      timeLeft = studyTime;
+      studyMinutesTotal = 0;
+      statusDisplay.textContent = "Timer resettato. Premi Avvia per iniziare.";
+      updateDisplay();
+    }
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>
