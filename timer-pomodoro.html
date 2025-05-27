@@ -5,92 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pomodoro Timer</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(to right, #667eea, #764ba2);
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
+      height: 100vh;
     }
 
     .container {
       background: rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      padding: 20px;
+      padding: 30px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
       backdrop-filter: blur(10px);
       text-align: center;
-      width: 100%;
       max-width: 400px;
+      width: 90%;
     }
 
     h1 {
-      font-size: 22px;
-      margin-bottom: 10px;
+      font-size: 24px;
+      margin-bottom: 5px;
     }
 
     #totalStudyTime {
-      font-size: 14px;
-      margin-bottom: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
     }
 
     #status {
-      font-size: 16px;
-      margin-bottom: 10px;
+      font-size: 18px;
+      margin-bottom: 15px;
       font-style: italic;
     }
 
     #timer {
-      font-size: 56px;
+      font-size: 64px;
       font-weight: bold;
-      margin: 15px 0;
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
+      margin: 20px 0;
     }
 
     .controls button {
-      flex: 1 1 100px;
       background: white;
       border: none;
       color: #764ba2;
       font-size: 16px;
       font-weight: bold;
-      padding: 12px;
+      padding: 10px 20px;
       border-radius: 30px;
+      margin: 5px;
       cursor: pointer;
       transition: background 0.3s ease;
     }
 
     .controls button:hover {
       background: #f1f1f1;
-    }
-
-    @media (max-width: 500px) {
-      h1 {
-        font-size: 18px;
-      }
-      #timer {
-        font-size: 48px;
-      }
-      .controls button {
-        font-size: 14px;
-        padding: 10px;
-      }
     }
   </style>
 </head>
@@ -109,9 +86,9 @@
   </div>
 
   <script>
-    let studyTime = 25 * 60;
-    let shortBreak = 5 * 60;
-    let longBreak = 15 * 60;
+    let studyTime = 50 * 60;
+    let shortBreak = 10 * 60;
+    let longBreak = 30 * 60;
     let cycleCount = 0;
     let timeLeft = studyTime;
     let isStudy = true;
